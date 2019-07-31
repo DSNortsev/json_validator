@@ -29,3 +29,21 @@ def usage():
     arguments = parser.parse_args()
     return arguments
 
+
+def read_json_schemas(schema_dir):
+    
+    '''
+    Reads json schemas from the directory provided
+    '''
+    
+    schema = OrderedDict()
+    for file in os.listdir(schema_dir):
+        if not re.match(r'^.+.json$', file):
+            continue
+
+        with open(os.path.join(schema_dir, file), 'r') as f:
+            schema_data = f.read()
+        schema[file.rsplit('.', 1)[0]] = json.loads(schema_data)
+    return schema
+
+
