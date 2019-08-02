@@ -47,3 +47,17 @@ def read_json_schemas(schema_dir):
     return schema
 
 
+def pre_check(args):
+    if args.filemode:
+        if not os.path.isdir(filemode_dir):
+            print('{}: directory does not exist'.format(filemode_dir))
+            sys.exit(1)
+
+        if len(os.listdir(filemode_dir)) == 0:
+            print('{}: directory is empty'.format(filemode_dir))
+            sys.exit(1)
+    else:
+        if not os.path.exists(log_file):
+            print('{}: Log file does not exist'.format(log_file))
+            sys.exit(1)
+
