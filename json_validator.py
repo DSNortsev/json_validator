@@ -61,3 +61,19 @@ def pre_check(args):
             print('{}: Log file does not exist'.format(log_file))
             sys.exit(1)
 
+def read_logs(args):
+
+    ''' Parse json messages from the log file or local files '''
+
+    filtered_data = list()
+    pre_check(args)
+
+    if args.filemode:
+        for file in os.listdir(filemode_dir):
+            with open(os.path.join(filemode_dir, file), 'r') as f:
+                filtered_data.append(f.read())
+    else:
+        with open(log_file, 'r') as f:
+            raw_logs = f.read()
+        filtered_data = re.findall(r'(?<=JSON: ).*', raw_logs)
+    return filtered_data
