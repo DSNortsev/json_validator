@@ -77,3 +77,44 @@ def read_logs(args):
             raw_logs = f.read()
         filtered_data = re.findall(r'(?<=JSON: ).*', raw_logs)
     return filtered_data
+
+
+def validate_json(filtered_data, all_schemas):
+
+    ''' Iterate over json messages and validate against existing schema '''
+
+    result = OrderedDict(success=0, fail=0, exceptions=0, message_processed=OrderedDict())
+    message_processed = OrderedDict()
+    error_count = 0
+    log_output = OrderedDict()
+    for js in filtered_data:
+        try:
+            data = json.loads(js)
+        except:
+            result['exceptions'] += 1
+            continue
+
+        message_type = data['header']['message_type']
+        if message_type not in all_schemas.keys():
+            continue
+
+        if message_type not in message_processed.keys():
+            message_processed[message_type] = 0
+
+        try:
+            validate(data, all_schemas[message_type])
+            result['success'] += 1
+        except jsonschema.exceptions.ValidationError as e:
+            error_count += 1
+            error_info = OrderedDict(title='Failed validating \'{}\' in schema{}'.format(e.validator,
+                                                                                  list(e.relative_schema_path)[:-1]),
+                              message_type=message_type,
+                              message=e.message,
+                              schema=e.schema,
+                              instance=e.instance)
+            log_output['error_message_{}'.format(error_count)] = OrderedDict(decription=error_info)
+            result['fail'] += 1
+        message_processed[message_type] += 1
+    result['message_processed'] =  message_processed   
+    log_output['result'] = result
+    return log_output
