@@ -118,3 +118,12 @@ def validate_json(filtered_data, all_schemas):
     result['message_processed'] =  message_processed   
     log_output['result'] = result
     return log_output
+
+
+def write_result_to_file(output_file, log_output):
+    
+    ''' Write result to log file '''
+    
+    with open(output_file, 'w') as f:
+        json.dump(log_output, f, indent=4)
+
